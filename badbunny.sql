@@ -4,7 +4,7 @@ USE budgetBunny;
 CREATE TABLE users (
 id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
 name VARCHAR(255) NOT NULL,
-surname HASH VARCHAR(255) NOT NULL,
+surname VARCHAR(255) NOT NULL,
 email VARCHAR(266) NOT NULL UNIQUE,
 password_hash VARCHAR(255) NOT NULL);
 
@@ -48,8 +48,7 @@ CREATE TABLE alerts (
 
 CREATE TABLE category (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    category ENUM('salaire','loyer','alimentation','loisirs','autres') DEFAULT NULL,
-);
+    category ENUM('salaire','loyer','alimentation','loisirs','autres') DEFAULT NULL);
 
 
 CREATE TABLE banker(
@@ -75,17 +74,17 @@ VALUES
 ('Doe', 800.00, 2),
 ('Martin', 3000.00, 3);
 
-INSERT INTO transaction (description, amount, transaction_date, type , id_categories, id_accounts) 
+INSERT INTO transactions (description, amount, transaction_date, type, id_category, id_accounts) 
 VALUES 
-('Achat supermarché', 45.30, '2025-03-18', 'deposit', 'Alimentation', 1, 1),
-('Virement salaire', 2000.00, '2025-03-17', 'transfer', 'Revenu', 2, 2),
-('Facture internet', 35.99, '2025-03-16', 'withdrawal', 'Abonnements', 3, 3);
+('Achat supermarché', 45.30, '2025-03-18 14:30:00', 'deposit', 1, 1),
+('Virement salaire', 2000.00, '2025-03-17 16:45:00', 'transfer', 2, 2),
+('Facture internet', 35.99, '2025-03-16 08:30:00', 'withdrawal', 3, 3);
 
 INSERT INTO transfers (from_account, to_account, amount, transfert_date) 
 VALUES 
-(1, 2, 100.00, '2025-02-19'),
-(2, 3, 250.00, '2025-01-10'), 
-(3, 1, 50.00, '2025-03-12');
+(1, 2, 100.00, '2025-02-19 19:20:00'),
+(2, 3, 250.00, '2025-01-10 12:56;00'), 
+(3, 1, 50.00, '2025-03-12 20:43:00');
 
 INSERT INTO alerts (Message, is_read, id_users, created_at) 
 VALUES 
@@ -93,14 +92,8 @@ VALUES
 ('Un virement de 500€ a été reçu.', TRUE, 2, '2025-11-03'),
 ('Attention : transaction suspecte détectée.', FALSE, 3, '2025-08-01');
 
-INSERT INTO category(category) 
-VALUES 
-('Alimentation'),
-('Revenu'),
-('Abonnements'),
-('Loisirs'),
-('Santé'),
-('Éducation');
+INSERT INTO category(category)
+VALUES ('Alimentation', 'Abonnements', 'Loisirs', 'Santé', 'Éducation');
 
 INSERT INTO banker (name, surname, email, password_hash, id_users)
 VALUES
