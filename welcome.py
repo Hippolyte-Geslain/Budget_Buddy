@@ -24,8 +24,20 @@ def open_login_window():
     password_entry.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
 
     # Bouton de connexion
-    login_button = tk.Button(login_window, text="Se connecter", command=lambda: print(f"Connexion de {email_entry.get()}"))
+    login_button = tk.Button(login_window, text="Se connecter", command=lambda:open_success_box(known=1,user=email_entry.get()))
     login_button.grid(row=3, column=0, columnspan=2, pady=20)
+
+
+def open_success_box(known,user):
+    login_window = tk.Toplevel(root)  # Fenêtre secondaire pour la connexion
+    login_window.title("Connexion - Budget Buddy")
+    login_window.geometry("400x300")
+    if known==1:
+        login_label = tk.Label(login_window, text=f"{user} signed in", font=("Arial", 14))
+        login_label.grid(row=0, column=0, columnspan=2, pady=20)
+    else:
+        login_label = tk.Label(login_window, text=f"{user} added successfully as user", font=("Arial", 14))
+        login_label.grid(row=0, column=0, columnspan=2, pady=20)
 
 # Fonction pour ouvrir la fenêtre d'inscription
 def open_register_window():
@@ -57,7 +69,7 @@ def open_register_window():
     password_entry.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
 
     # Bouton d'inscription
-    register_button = tk.Button(register_window, text="S'inscrire", command=lambda: print(f"Inscription de {name_entry.get()}"))
+    register_button = tk.Button(register_window, text="S'inscrire", command=lambda: open_success_box(known=0,user=email_entry.get()))
     register_button.grid(row=4, column=0, columnspan=2, pady=20)
 
 # Créer la fenêtre principale
