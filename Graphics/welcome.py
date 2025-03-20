@@ -32,18 +32,24 @@ entry2.grid(row=2, column=2, padx=10, pady=10, sticky="ew")  # Center horizontal
 button1 = tk.Button(root, text="Connexion")
 button1.grid(row=3, column=2, pady=10)
 
-def check_entries():
-    
+def check_entries(email):
+    if not "@" in email:
+        return False
+    else:
+        return True
 
 def on_click(event=None):
     username = entry1.get()
     password = entry2.get()
-    values=[username,password]
-    if not all(values):
-        messagebox.showwarning("Attention", "Veuillez remplir tous les champs.")
+    if check_entries(username):
+        values=[username,password]
+        if not all(values):
+            messagebox.showwarning("Attention", "Veuillez remplir tous les champs.")
+        else:
+            messagebox.showinfo("Succès","Connexion à votre compte en cours...")
+        print(f"utilisateur = {username}\nmot de passe = {password}")
     else:
-        messagebox.showinfo("Succès","Connexion à votre compte en cours...")
-    print(f"utilisateur = {username}\nmot de passe = {password}")
+        messagebox.showwarning("Attention", "Veuillez utilisez une adresse mail valide")
 
 button1.config(command=on_click)
 

@@ -1,4 +1,6 @@
 import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 root = tk.Tk()
 
@@ -12,14 +14,23 @@ root.grid_columnconfigure(2, weight=1)  # Make column 2 expandable
 root.grid_columnconfigure(3, weight=1)  # Make column 3 expandable
 root.grid_columnconfigure(4, weight=1)  # Make column 4 expandable
 
+#Diagrams
+
+fig, ax = plt.subplots()
+mois = ['Janvier','Février','Mars','Avril','Mai','Juin']
+valeurs = [12,0,0,0,0,0]
+ax.bar(mois,valeurs)
+ax.set_title("Résumé de l'année")
+ax.set_xlabel("Mois")
+ax.set_ylabel("Solde de fin de mois") 
+
+canvas= FigureCanvasTkAgg(fig,master=root)
+canvas.draw()
+canvas.get_tk_widget().grid(row=1, column=1, pady=20, sticky="nsew")
 #Labels
 
 header = tk.Label(root, text="Bienvenue sur votre espace personnel\nVous avez une vue d'ensemble ici !")
 header.grid(row=0, column=1, pady=20, sticky="n")
-
-dernieresDepenses = tk.Text(root,height=15, width=50)
-dernieresDepenses.grid(row=1, column=1, pady=20, sticky="n")
-dernieresDepenses.insert("1.0","Comptes + diagramme")
 
 nom = tk.Label(root, text="Nom")
 nom.grid(row=2, column=1, pady=20, sticky="n")
