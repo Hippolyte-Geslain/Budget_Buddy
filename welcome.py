@@ -14,7 +14,7 @@ root.grid_columnconfigure(2, weight=1)  # Make column 2 expandable
 root.grid_columnconfigure(3, weight=1)  # Make column 3 expandable
 root.grid_columnconfigure(4, weight=1)  # Make column 4 expandable
 
-header = tk.Label(root, text="Welcome To Budget Bunny!")
+header = tk.Label(root, text="Bienvenue à Budget Bunny!")
 header.grid(row=0, column=2, pady=20, sticky="n")
 
 email= tk.Label(root, text="Email")
@@ -31,6 +31,9 @@ entry2.grid(row=2, column=2, padx=10, pady=10, sticky="ew")  # Center horizontal
 
 button1 = tk.Button(root, text="Connexion")
 button1.grid(row=3, column=2, pady=10)
+
+def check_entries():
+    
 
 def on_click(event=None):
     username = entry1.get()

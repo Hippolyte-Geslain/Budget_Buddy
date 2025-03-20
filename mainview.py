@@ -2,7 +2,7 @@ import tkinter as tk
 
 root = tk.Tk()
 
-root.title("Bunny Sign Up")
+root.title("Bunny Budget")
 
 root.geometry("1200x700")
 
@@ -14,11 +14,12 @@ root.grid_columnconfigure(4, weight=1)  # Make column 4 expandable
 
 #Labels
 
-header = tk.Label(root, text="Bienvenue à Budget Bunny\nC'est juste ici pour s'incscrire !")
-header.grid(row=0, column=2, pady=20, sticky="n")
+header = tk.Label(root, text="Bienvenue sur votre espace personnel\nVous avez une vue d'ensemble ici !")
+header.grid(row=0, column=1, pady=20, sticky="n")
 
-prenom = tk.Label(root, text="Prénom")
-prenom.grid(row=1, column=1, pady=20, sticky="n")
+dernieresDepenses = tk.Text(root,height=15, width=50)
+dernieresDepenses.grid(row=1, column=1, pady=20, sticky="n")
+dernieresDepenses.insert("1.0","Comptes + diagramme")
 
 nom = tk.Label(root, text="Nom")
 nom.grid(row=2, column=1, pady=20, sticky="n")

@@ -2,7 +2,7 @@ import tkinter as tk
 
 root = tk.Tk()
 
-root.title("Bunny Sign Up")
+root.title("Bunny Paraùètres")
 
 root.geometry("1200x700")
 
@@ -14,32 +14,22 @@ root.grid_columnconfigure(4, weight=1)  # Make column 4 expandable
 
 #Labels
 
-header = tk.Label(root, text="Bienvenue à Budget Bunny\nC'est juste ici pour s'incscrire !")
+header = tk.Label(root, text="Pour changer vos informations personnelles\nEntrez votre mot de passe actuel")
 header.grid(row=0, column=2, pady=20, sticky="n")
 
-prenom = tk.Label(root, text="Prénom")
-prenom.grid(row=1, column=1, pady=20, sticky="n")
-
-nom = tk.Label(root, text="Nom")
-nom.grid(row=2, column=1, pady=20, sticky="n")
-
-email = tk.Label(root, text="Email")
-email.grid(row=3, column=1, pady=20, sticky="n")
-
 mdp = tk.Label(root, text="Mot de passe")
-mdp.grid(row=4, column=1, pady=20, sticky="n")
+mdp.grid(row=1, column=1, pady=20, sticky="n")
+
+mdp2 = tk.Label(root, text="Confirmez votre mot de passe")
+mdp2.grid(row=2, column=1, pady=20, sticky="n")
 
 #Entries
 
 entry1 = tk.Entry(root)
 entry2 = tk.Entry(root)
-entry3 = tk.Entry(root)
-entry4 = tk.Entry(root)
 
 entry1.grid(row=1, column=2, padx=10, pady=10, sticky="ew")  # Center horizontally
 entry2.grid(row=2, column=2, padx=10, pady=10, sticky="ew")  # Center horizontally
-entry3.grid(row=3, column=2, padx=10, pady=10, sticky="ew")  # Center horizontally
-entry4.grid(row=4, column=2, padx=10, pady=10, sticky="ew")  # Center horizontally
 
 #buttons
 
@@ -47,11 +37,9 @@ button1 = tk.Button(root, text="Connexion")
 button1.grid(row=5, column=2, pady=10)
 
 def on_click(event=None):
-    prenom = entry1.get()
-    nom = entry2.get()
-    email = entry3.get()
-    mdp = entry4.get()
-    print(f"Prénom: {prenom}\nNom: {nom}\nEmail: {email}\nMot de passe: {mdp}")
+    mdp = entry1.get()
+    mdp2 = entry2.get()
+    print(f"mdp1: {mdp}\nmdp2: {mdp2}")
 
 button1.config(command=on_click)
 
