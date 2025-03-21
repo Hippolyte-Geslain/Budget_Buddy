@@ -1,72 +1,92 @@
 import tkinter as tk
+from tkinter import ttk
+from turtle import width
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
 root = tk.Tk()
-
 root.title("Bunny Budget")
-
 root.geometry("1200x700")
 
-root.grid_columnconfigure(0, weight=1)  # Make column 0 expandable
-root.grid_columnconfigure(1, weight=1)  # Make column 1 expandable
-root.grid_columnconfigure(2, weight=1)  # Make column 2 expandable
-root.grid_columnconfigure(3, weight=1)  # Make column 3 expandable
-root.grid_columnconfigure(4, weight=1)  # Make column 4 expandable
+# Configure grid layout
+for i in range(5):
+    root.grid_columnconfigure(i, weight=1)
+for i in range(10):
+    root.grid_rowconfigure(i, weight=1)
 
-#Diagrams
+# Header
+header = tk.Label(root, text="Bienvenue sur votre espace personnel\nVous avez une vue d'ensemble ici !", font=("Arial", 16))
+header.grid(row=0, column=0, columnspan=5, pady=20, sticky="n")
 
+# Résumé des comptes
+accounts_label = tk.Label(root, text="Résumé des comptes", font=("Arial", 14))
+accounts_label.grid(row=1, column=0, pady=10, sticky="w")
+
+accounts_list = tk.Listbox(root, height=5,width=5)
+accounts_list.insert(1, "Compte courant : 1500€")
+accounts_list.insert(2, "Livret A : 3000€")
+accounts_list.insert(3, "PEL : 5000€")
+accounts_list.grid(row=2, column=0,padx=20, pady=10, sticky="nsew")
+
+# Dernières transactions
+transactions_label = tk.Label(root, text="Dernières transactions", font=("Arial", 14),width=20)
+transactions_label.grid(row=1, column=1, pady=10, sticky="w")
+
+transactions_tree = ttk.Treeview(root, columns=("Date", "Description", "Montant"), show="headings", height=5)
+transactions_tree.heading("Date", text="Date")
+transactions_tree.column("Date",width=70)
+
+transactions_tree.heading("Description", text="Description")
+transactions_tree.column("Description",width=150)
+
+transactions_tree.heading("Montant", text="Montant")
+transactions_tree.column("Montant",width=55)
+
+transactions_tree.insert("", "end", values=("21/03/2025", "Achat supermarché", "-50€"))
+transactions_tree.insert("", "end", values=("20/03/2025", "Virement salaire", "+2000€"))
+transactions_tree.grid(row=2, column=1, padx=20, pady=10, sticky="nsew")
+
+# Graphique circulaire (répartition des dépenses)
 fig, ax = plt.subplots()
-mois = ['Janvier','Février','Mars','Avril','Mai','Juin']
-valeurs = [12,0,0,0,0,0]
-ax.bar(mois,valeurs)
-ax.set_title("Résumé de l'année")
-ax.set_xlabel("Mois")
-ax.set_ylabel("Solde de fin de mois") 
+categories = ['Logement', 'Alimentation', 'Loisirs', 'Transport']
+values = [500, 300, 200, 100]
+ax.pie(values, labels=categories, autopct='%1.1f%%', startangle=90)
+ax.set_title("Répartition des dépenses")
 
-canvas= FigureCanvasTkAgg(fig,master=root)
+canvas = FigureCanvasTkAgg(fig, master=root)
 canvas.draw()
-canvas.get_tk_widget().grid(row=1, column=1, pady=20, sticky="nsew")
-#Labels
+canvas.get_tk_widget().grid(row=2, column=2, padx=20, pady=10, sticky="nsew")
 
-header = tk.Label(root, text="Bienvenue sur votre espace personnel\nVous avez une vue d'ensemble ici !")
-header.grid(row=0, column=1, pady=20, sticky="n")
+# Barre de recherche
+search_label = tk.Label(root, text="Rechercher une transaction :", font=("Arial", 12))
+search_label.grid(row=3, column=0, pady=10, sticky="w")
 
-nom = tk.Label(root, text="Nom")
-nom.grid(row=2, column=1, pady=20, sticky="n")
+search_entry = tk.Entry(root, width=30)
+search_entry.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
 
-email = tk.Label(root, text="Email")
-email.grid(row=3, column=1, pady=20, sticky="n")
+search_button = tk.Button(root, text="Rechercher")
+search_button.grid(row=3, column=2, padx=10, pady=10, sticky="ew")
 
-mdp = tk.Label(root, text="Mot de passe")
-mdp.grid(row=4, column=1, pady=20, sticky="n")
+# Boutons d'action
+add_transaction_button = tk.Button(root, text="Ajouter une transaction")
+add_transaction_button.grid(row=4, column=0, padx=10, pady=10, sticky="ew")
 
-#Entries
+transfer_button = tk.Button(root, text="Transférer de l'argent")
+transfer_button.grid(row=4, column=1, padx=10, pady=10, sticky="ew")
 
-entry1 = tk.Entry(root)
-entry2 = tk.Entry(root)
-entry3 = tk.Entry(root)
-entry4 = tk.Entry(root)
+details_button = tk.Button(root, text="Voir les détails du compte")
+details_button.grid(row=4, column=2, padx=10, pady=10, sticky="ew")
 
-entry1.grid(row=1, column=2, padx=10, pady=10, sticky="ew")  # Center horizontally
-entry2.grid(row=2, column=2, padx=10, pady=10, sticky="ew")  # Center horizontally
-entry3.grid(row=3, column=2, padx=10, pady=10, sticky="ew")  # Center horizontally
-entry4.grid(row=4, column=2, padx=10, pady=10, sticky="ew")  # Center horizontally
+# Menu de navigation
+menu = tk.Menu(root)
+root.config(menu=menu)
 
-#buttons
-
-button1 = tk.Button(root, text="Connexion")
-button1.grid(row=5, column=2, pady=10)
-
-def on_click(event=None):
-    prenom = entry1.get()
-    nom = entry2.get()
-    email = entry3.get()
-    mdp = entry4.get()
-    print(f"Prénom: {prenom}\nNom: {nom}\nEmail: {email}\nMot de passe: {mdp}")
-
-button1.config(command=on_click)
-
-root.bind('<Return>', on_click)
+file_menu = tk.Menu(menu, tearoff=0)
+file_menu.add_command(label="Accueil")
+file_menu.add_command(label="Transactions")
+file_menu.add_command(label="Paramètres")
+file_menu.add_separator()
+file_menu.add_command(label="Quitter", command=root.quit)
+menu.add_cascade(label="Menu", menu=file_menu)
 
 root.mainloop()
