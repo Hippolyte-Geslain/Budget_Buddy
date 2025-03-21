@@ -1,6 +1,6 @@
 from connect import connect_db
 import bcrypt
-
+import re
 class Users:
     def __init__(self):
         self.conn = connect_db()
@@ -59,12 +59,34 @@ class Users:
         else:
             print("User not found. Please sign up.")
             return False
+    
+    def is_valid_password(self, password):
+        """ Vérifie si le mot de passe respecte les critères de sécurité """
+        if len(password) < 8:
+            return False, "Le mot de passe doit contenir au moins 8 caractères."
+        if not re.search(r"[A-Z]", password):
+            return False, "Le mot de passe doit contenir au moins une majuscule."
+        if not re.search(r"[0-9]", password):
+            return False, "Le mot de passe doit contenir au moins un chiffre."
+        if not re.search(r"[@$!%*?&]", password):
+            return False, "Le mot de passe doit contenir au moins un caractère spécial (@, $, !, %, *, ?, &)."
+        return True, "Mot de passe valide."
 
     def sign_up(self, name, surname, email, password):
+        """Inscrit un nouvel utilisateur après vérification du mot de passe"""
         if self.check_user(email):
             print("User already exists")
             return False
-        else:
-            self.add_user(name, surname, email, password)
-            print("User added successfully")
-            return self.sign_in(email, password)
+
+        valid, message = self.is_valid_password(password)
+        if not valid:
+            print(f"Échec de l'inscription : {message}")
+            return False
+
+        self.add_user(name, surname, email, password)
+        print("User added successfully")
+        return self.sign_in(email, password)
+
+
+user_manager = Users()
+print(user_manager.get_users())
