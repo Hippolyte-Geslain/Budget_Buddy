@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 # Fonction pour ouvrir la fenêtre de connexion
 def open_login_window():
     login_window = tk.Toplevel(root)  # Fenêtre secondaire pour la connexion
@@ -64,6 +65,7 @@ def open_register_window():
 root = tk.Tk()
 root.title("Budget Buddy - Page d'Accueil")
 root.geometry("600x400")
+
 
 # Titre de l'application
 app_title = tk.Label(root, text="Bienvenue sur Budget Buddy", font=("Arial", 24), pady=20)
