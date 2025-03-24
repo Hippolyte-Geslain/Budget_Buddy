@@ -86,10 +86,21 @@ root = tk.Tk()
 root.title("Budget Buddy - Page d'Accueil")
 root.geometry("600x400")
 
-tk.Label(root, text="Bienvenue sur Budget Buddy", font=("Arial", 24), pady=20).pack()
-tk.Label(root, text="L'application pour gérer vos finances personnelles", font=("Arial", 12)).pack(pady=10)
 
-tk.Button(root, text="S'identifier", font=("Arial", 14), command=open_login_window).pack(pady=20)
-tk.Button(root, text="S'inscrire", font=("Arial", 14), command=open_register_window).pack(pady=20)
+# Titre de l'application
+app_title = tk.Label(root, text="Bienvenue sur Budget Buddy", font=("Arial", 24), pady=20)
+app_title.pack()
+
+# Description de l'application
+description = tk.Label(root, text="L'application pour gérer vos finances personnelles", font=("Arial", 12))
+description.pack(pady=10)
+
+# Bouton pour s'identifier
+login_button = tk.Button(root, text="S'identifier", font=("Arial", 14), command=open_login_window)
+login_button.pack(pady=20)
+
+# Bouton pour s'inscrire
+register_button = tk.Button(root, text="S'inscrire", font=("Arial", 14), command=open_register_window)
+register_button.pack(pady=20)
 
 root.mainloop()
