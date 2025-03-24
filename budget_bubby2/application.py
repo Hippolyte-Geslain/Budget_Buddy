@@ -1,3 +1,7 @@
+import tkinter as tk
+from controllers import Controller
+
+
 class Application:
     def __init__(self, master):
         self.master = master
@@ -30,10 +34,10 @@ class Application:
         
         user = self.controller.login(email, password)
         if user:
-            messagebox.showinfo("Connexion réussie", f"Bienvenue, {user.name}!")
+            tk.messagebox.showinfo("Connexion réussie", f"Bienvenue, {user.name}!")
             self.create_account_screen(user)  # Passer à l'écran de création de compte
         else:
-            messagebox.showerror("Erreur", "Email ou mot de passe incorrect")
+            tk.messagebox.showerror("Erreur", "Email ou mot de passe incorrect")
 
     def create_register_screen(self):
         self.clear_screen()
@@ -70,10 +74,10 @@ class Application:
 
         user, message = self.controller.register(name, surname, email, password)
         if user:
-            messagebox.showinfo("Inscription réussie", f"Bienvenue, {user.name}!")
+            tk.messagebox.showinfo("Inscription réussie", f"Bienvenue, {user.name}!")
             self.create_account_screen(user)  # Passer à l'écran de création de compte
         else:
-            messagebox.showerror("Erreur", message)  # Affichage du message d'erreur
+            tk.messagebox.showerror("Erreur", message)  # Affichage du message d'erreur
 
     def create_account_screen(self, user):
         """Création de l'écran pour ajouter un compte bancaire."""
@@ -96,10 +100,10 @@ class Application:
 
         message = self.controller.create_account(user.id, account_name=account_name)
         if message == "Compte bancaire créé avec succès.":
-            messagebox.showinfo("Succès", message)
+            tk.messagebox.showinfo("Succès", message)
             self.create_main_screen()  # Passer à l'écran principal
         else:
-            messagebox.showerror("Erreur", message)  # Afficher une erreur si l'IBAN est déjà pris
+            tk.messagebox.showerror("Erreur", message)  # Afficher une erreur si l'IBAN est déjà pris
 
     def create_main_screen(self):
         pass
