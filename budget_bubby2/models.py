@@ -15,10 +15,11 @@ class Account:
         self.user_id = user_id
 
 class Transaction:
-    def __init__(self, id, description, amount, transaction_date, transaction_type, account_id):
+    def __init__(self, id, description, amount, transaction_date, transaction_category, transaction_type, account_id):
         self.id = id
         self.description = description
         self.amount = amount
         self.transaction_date = transaction_date
         self.transaction_type = transaction_type
+        self.transaction_category = transaction_category
         self.account_id = account_id

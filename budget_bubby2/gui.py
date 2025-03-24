@@ -1,14 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 from controllers import Controller
 
 class Application:
     def __init__(self, master):
         self.master = master
         self.controller = Controller()
-        self.dashboard = None
         self.create_login_screen()
 
     def create_login_screen(self):
@@ -108,41 +105,51 @@ class Application:
         self.master.title("Espace Personnel")
         self.master.geometry("1200x700")
 
-        tk.Label(self.dashboard, text=f"Bienvenue {user.name} !", font=("Arial", 16)).grid(row=0, column=0, columnspan=5, pady=20, sticky="n")
+        tk.Label(self.master, text=f"Bienvenue {user.name} !", font=("Arial", 16)).grid(row=0, column=0, columnspan=5, pady=20, sticky="n")
 
-        tk.Label(self.dashboard, text="Résumé des comptes", font=("Arial", 14)).grid(row=1, column=0, pady=10, sticky="w")
-        accounts_list = tk.Listbox(self.dashboard, height=5, width=40)
-        
-        tk.Button(self.dashboard, text="Transférer de l'argent", command=lambda: self.transfer_money_window(user)).grid(row=4, column=1, padx=10, pady=10, sticky="ew")
+        tk.Label(self.master, text="Résumé des comptes", font=("Arial", 14)).grid(row=1, column=0, pady=10, sticky="w")
+        accounts_list = tk.Listbox(self.master, height=5, width=40)
+        accounts_list.grid(row=2, column=0, padx=20, pady=10, sticky="nsew")
 
-        
-        accounts = self.controller.get_accounts(user.id)
-        accounts_list.delete(0, tk.END)
-    
-        for account in accounts:
-
-            accounts_list.insert(tk.END, f"{account.account_name} : {account.balance}€")
-            accounts_list.grid(row=2, column=0,  padx=20, pady=10, sticky="nsew")
-        
-        tk.Label(self.dashboard, text="Dernières transactions", font=("Arial", 14)).grid(row=1, column=1, pady=10, sticky="w")
-        transactions_tree = ttk.Treeview(self.dashboard, columns=("Date", "Description", "Montant"), show="headings", height=5)
+        tk.Label(self.master, text="Dernières transactions", font=("Arial", 14)).grid(row=1, column=1, pady=10, sticky="w")
+        transactions_tree = ttk.Treeview(self.master, columns=("Date", "Description", "Montant"), show="headings", height=5)
         transactions_tree.heading("Date", text="Date")
         transactions_tree.heading("Description", text="Description")
         transactions_tree.heading("Montant", text="Montant")
-
-        transactions = self.controller.get_transactions()
-        for transaction in transactions:
-            transactions_tree.insert("", "end", values=(transaction['date'], transaction['description'], f"{transaction['amount']}€"))
-        
         transactions_tree.grid(row=2, column=1, padx=20, pady=10, sticky="nsew")
-        
-        tk.Button(self.dashboard, text="Ajouter une transaction", command=lambda: self.add_transaction(self.dashboard, user)).grid(row=4, column=0, padx=10, pady=10, sticky="ew")
 
-        tk.Button(self.dashboard, text="Ajouter un compte", command=lambda: self.show_create_account_window(user)).grid(row=5, column=0, padx=10, pady=10, sticky="ew")
+        # Fetch accounts and populate the accounts_list
+        accounts = self.controller.get_accounts(user.id)
+        for account in accounts:
+            accounts_list.insert(tk.END, f"{account.account_name} : {account.balance}€")
 
-        tk.Button(self.dashboard, text="Transférer de l'argent").grid(row=4, column=1, padx=10, pady=10, sticky="ew")
+        # Define a callback function to update transactions_tree
+        def update_transactions(event):
+            # Get the selected account
+            selected_index = accounts_list.curselection()
+            if not selected_index:
+                return  # No selection
+            selected_account = accounts[selected_index[0]]
 
-        tk.Button(self.dashboard, text="Voir les détails du compte").grid(row=4, column=2, padx=10, pady=10, sticky="ew")
+            # Fetch transactions for the selected account
+            transactions = self.controller.get_transactions(selected_account.id)
+
+            # Clear the transactions_tree
+            for item in transactions_tree.get_children():
+                transactions_tree.delete(item)
+
+            # Populate the transactions_tree with the new transactions
+            for transaction in transactions:
+                transactions_tree.insert("", "end", values=(transaction.transaction_date, transaction.description, f"{transaction.amount}€"))
+
+        # Bind the <<ListboxSelect>> event to the update_transactions function
+        accounts_list.bind("<<ListboxSelect>>", update_transactions)
+
+        # Add buttons for additional functionality
+        tk.Button(self.master, text="Ajouter une transaction", command=lambda: self.add_transaction(self.master, user)).grid(row=4, column=0, padx=10, pady=10, sticky="ew")
+        tk.Button(self.master, text="Ajouter un compte", command=lambda: self.show_create_account_window(user)).grid(row=5, column=0, padx=10, pady=10, sticky="ew")
+        tk.Button(self.master, text="Transférer de l'argent", command=lambda: self.transfer_money_window(user)).grid(row=4, column=1, padx=10, pady=10, sticky="ew")
+        tk.Button(self.master, text="Voir les détails du compte").grid(row=4, column=2, padx=10, pady=10, sticky="ew")
 
     def add_transaction(self, parent, user):
         add_window = tk.Toplevel(parent)
@@ -203,7 +210,7 @@ class Application:
         tk.Button(add_window, text="Ajouter", command=submit).grid(row=4, column=0, columnspan=2)
         
     def transfer_money_window(self, user):
-        transfer_window = tk.Toplevel()
+        transfer_window = tk.Toplevel(self.master)
         transfer_window.title("Effectuer un transfert")
 
         tk.Label(transfer_window, text="Montant (€):").grid(row=0, column=0)
@@ -212,7 +219,7 @@ class Application:
 
         accounts = self.controller.get_accounts(user.id)
         account_names = [account.account_name for account in accounts]
-    
+
         tk.Label(transfer_window, text="Compte source:").grid(row=1, column=0)
         from_account_var = tk.StringVar(value=account_names[0])
         from_account_combobox = ttk.Combobox(transfer_window, textvariable=from_account_var, values=account_names)
@@ -237,8 +244,6 @@ class Application:
                 messagebox.showerror("Erreur", f"Erreur : {e}")
 
         tk.Button(transfer_window, text="Confirmer", command=submit_transfer).grid(row=3, column=0, columnspan=2)
-        
-
 
     def clear_screen(self):
         for widget in self.master.winfo_children():

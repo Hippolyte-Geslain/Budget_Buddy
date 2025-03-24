@@ -3,7 +3,6 @@ from models import Account, Transaction, User
 import re
 import logging
 import random
-from datetime import datetime
 
 class Controller:
     def __init__(self):
@@ -156,7 +155,6 @@ class Controller:
         return result[0] if result else None
     
     def transfer_money(self, sender_user_id, from_account_id, to_account_iban, amount):
-        """Effectue un transfert entre un compte interne et un compte externe."""
     
         # Vérification si le montant est valide
         if amount <= 0:
