@@ -8,12 +8,13 @@ class Application:
     def __init__(self, master):
         self.master = master
         self.controller = Controller()
+        self.dashboard = None
         self.create_login_screen()
 
     def create_login_screen(self):
         self.clear_screen()
         self.master.title("Connexion")
-        
+        self.master.geometry("600x400")
         tk.Label(self.master, text="Email:").pack(pady=5)
         self.entry_email = tk.Entry(self.master)
         self.entry_email.pack(pady=5)
@@ -32,7 +33,6 @@ class Application:
         user = self.controller.login(email, password)
         if user:
             messagebox.showinfo("Connexion réussie", f"Bienvenue, {user.name}!")
-            self.master.destroy()
             self.open_dashboard(user)
         else:
             messagebox.showerror("Erreur", "Email ou mot de passe incorrect")
@@ -58,6 +58,7 @@ class Application:
         self.entry_password.pack(pady=5)
 
         tk.Button(self.master, text="S'inscrire", command=self.register).pack(pady=10)
+        tk.Button(self.master, text="Se connecter", command=self.create_login_screen).pack(pady=10)
 
     def register(self):
         name = self.entry_name.get()
@@ -68,50 +69,80 @@ class Application:
         user, message = self.controller.register(name, surname, email, password)
         if user:
             messagebox.showinfo("Inscription réussie", f"Bienvenue, {user.name}!")
-            self.master.destroy()
-            self.open_dashboard(user)
+            self.show_create_account_window(user)
         else:
             messagebox.showerror("Erreur", message)
 
-    def open_dashboard(self, user):
-        dashboard = tk.Tk()
-        dashboard.title("Espace Personnel")
-        dashboard.geometry("1200x700")
-
-        tk.Label(dashboard, text=f"Bienvenue {user.name} !", font=("Arial", 16)).grid(row=0, column=0, columnspan=5, pady=20, sticky="n")
-
-        tk.Label(dashboard, text="Résumé des comptes", font=("Arial", 14)).grid(row=1, column=0, pady=10, sticky="w")
-        accounts_list = tk.Listbox(dashboard, height=5, width=40)
+    def show_create_account_window(self, user):
+        """Affiche une fenêtre pour créer un compte avec un dépôt initial."""
+        create_window = tk.Toplevel(self.master)
+        create_window.title("Créer un compte bancaire")
+        tk.Label(create_window, text="Type de compte :").grid(row=0, column=0)
+        account_name_var = tk.StringVar(value="courant")
+        tk.OptionMenu(create_window, account_name_var, "courant", "épargne", "joint", "entreprise").grid(row=0, column=1)
         
-        tk.Button(dashboard, text="Transférer de l'argent", command=lambda: self.transfer_money_window(user)).grid(row=4, column=1, padx=10, pady=10, sticky="ew")
+        tk.Label(create_window, text="Dépôt initial (€) :").grid(row=1, column=0)
+        initial_deposit_entry = tk.Entry(create_window)
+        initial_deposit_entry.grid(row=1, column=1)
+
+        def submit():
+            """Vérifie et crée un compte avec dépôt initial."""
+            account_name = account_name_var.get()
+            try:
+                initial_deposit = float(initial_deposit_entry.get())
+                if initial_deposit < 20:
+                    messagebox.showerror("Erreur", "Le dépôt initial doit être d'au moins 20€.")
+                    return
+                
+                message = self.controller.create_account(user.id, account_name, initial_deposit)
+                messagebox.showinfo("Succès", message)
+                create_window.destroy()
+                self.open_dashboard(user)
+            except ValueError:
+                messagebox.showerror("Erreur", "Veuillez entrer un montant valide.")
+
+        tk.Button(create_window, text="Créer le compte", command=submit).grid(row=2, column=0, columnspan=2)
+
+    def open_dashboard(self, user):
+        self.clear_screen()
+        self.master.title("Espace Personnel")
+        self.master.geometry("1200x700")
+
+        tk.Label(self.dashboard, text=f"Bienvenue {user.name} !", font=("Arial", 16)).grid(row=0, column=0, columnspan=5, pady=20, sticky="n")
+
+        tk.Label(self.dashboard, text="Résumé des comptes", font=("Arial", 14)).grid(row=1, column=0, pady=10, sticky="w")
+        accounts_list = tk.Listbox(self.dashboard, height=5, width=40)
+        
+        tk.Button(self.dashboard, text="Transférer de l'argent", command=lambda: self.transfer_money_window(user)).grid(row=4, column=1, padx=10, pady=10, sticky="ew")
 
         
         accounts = self.controller.get_accounts(user.id)
         accounts_list.delete(0, tk.END)
     
         for account in accounts:
+
             accounts_list.insert(tk.END, f"{account.account_name} : {account.balance}€")
             accounts_list.grid(row=2, column=0,  padx=20, pady=10, sticky="nsew")
         
-        tk.Label(dashboard, text="Dernières transactions", font=("Arial", 14)).grid(row=1, column=1, pady=10, sticky="w")
-        transactions_tree = ttk.Treeview(dashboard, columns=("Date", "Description", "Montant"), show="headings", height=5)
+        tk.Label(self.dashboard, text="Dernières transactions", font=("Arial", 14)).grid(row=1, column=1, pady=10, sticky="w")
+        transactions_tree = ttk.Treeview(self.dashboard, columns=("Date", "Description", "Montant"), show="headings", height=5)
         transactions_tree.heading("Date", text="Date")
         transactions_tree.heading("Description", text="Description")
         transactions_tree.heading("Montant", text="Montant")
 
-        transactions = self.controller.get_transactions(user.id)
+        transactions = self.controller.get_transactions()
         for transaction in transactions:
             transactions_tree.insert("", "end", values=(transaction['date'], transaction['description'], f"{transaction['amount']}€"))
         
         transactions_tree.grid(row=2, column=1, padx=20, pady=10, sticky="nsew")
         
-        tk.Button(dashboard, text="Ajouter une transaction", command=lambda: self.add_transaction(dashboard, user)).grid(row=4, column=0, padx=10, pady=10, sticky="ew")
+        tk.Button(self.dashboard, text="Ajouter une transaction", command=lambda: self.add_transaction(self.dashboard, user)).grid(row=4, column=0, padx=10, pady=10, sticky="ew")
 
-        tk.Button(dashboard, text="Transférer de l'argent").grid(row=4, column=1, padx=10, pady=10, sticky="ew")
+        tk.Button(self.dashboard, text="Ajouter un compte", command=lambda: self.show_create_account_window(user)).grid(row=5, column=0, padx=10, pady=10, sticky="ew")
 
-        tk.Button(dashboard, text="Voir les détails du compte").grid(row=4, column=2, padx=10, pady=10, sticky="ew")
-        
-        dashboard.mainloop()
+        tk.Button(self.dashboard, text="Transférer de l'argent").grid(row=4, column=1, padx=10, pady=10, sticky="ew")
+
+        tk.Button(self.dashboard, text="Voir les détails du compte").grid(row=4, column=2, padx=10, pady=10, sticky="ew")
 
     def add_transaction(self, parent, user):
         add_window = tk.Toplevel(parent)
@@ -148,7 +179,7 @@ class Application:
         tk.Label(add_window, text="Type de transaction:").grid(row=4, column=0)
         transaction_type_var = tk.StringVar(value='deposit')  # Valeur par défaut
         transaction_type_combobox = ttk.Combobox(add_window, textvariable=transaction_type_var, values=['deposit', 'withdrawal'])
-        transaction_type_combobox.grid(row=4, column=1)
+        transaction_type_combobox.grid(row=4, column=1,sticky="e")
     
         def submit():
             description = desc_entry.get()

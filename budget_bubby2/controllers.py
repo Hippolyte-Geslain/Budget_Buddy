@@ -21,6 +21,7 @@ class Controller:
         """Récupère les transactions d'un compte spécifique."""
         query = "SELECT * FROM transactions WHERE id_accounts = %s"
         result = self.db.fetch_all(query, (account_id,))
+        print(result) #debugging
         if not result:
             return []  # Liste vide si aucune transaction n'est trouvée
         return [Transaction(*row) for row in result]

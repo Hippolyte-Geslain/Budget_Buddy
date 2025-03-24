@@ -5,10 +5,24 @@ class Database:
         self.connection = mysql.connector.connect(
             host="localhost",
             user="root",  
-            password="Papito1989*",  
+            password="123",  
             database="budget_bunny"
         )
         self.cursor = self.connection.cursor()
+
+    def create_user(self, name, surname, email, password):
+        """Insert a new user into the users table."""
+        try:
+            hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+            query = """
+            INSERT INTO users (name, surname, email, password_hash)
+            VALUES (%s, %s, %s, %s)
+            """
+            self.cursor.execute(query, (name, surname, email, hashed_password))
+            self.connection.commit()  # Save changes to the database
+        except Exception as e:
+            self.connection.rollback()  # Rollback in case of an error
+            raise e
 
     def execute_query(self, query, params=None):
         self.cursor.execute(query, params)
