@@ -34,5 +34,4 @@ class Database:
 
     def check_password(self, input_password, stored_password):
         """Vérifie si le mot de passe hashé correspond."""
-        
         return bcrypt.checkpw(input_password.encode(), stored_password.encode())
