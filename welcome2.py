@@ -8,7 +8,7 @@ def open_login_window():
     login_window.geometry("400x300")
 
     # Charger l'image de fond pour la fenêtre de connexion
-    login_background_image = Image.open("2.png")  # Remplace par le chemin de ton image
+    login_background_image = Image.open("image2.png")  # Remplace par le chemin de ton image
     login_background_image = login_background_image.resize((400, 300), Image.Resampling.LANCZOS)
     login_background_photo = ImageTk.PhotoImage(login_background_image)
 
@@ -105,7 +105,7 @@ root.title("Budget Buddy - Page d'Accueil")
 root.geometry("600x400")
 
 # Charger l'image de fond pour la fenêtre principale
-background_image = Image.open("1.png")  # Remplace par le chemin de ton image
+background_image = Image.open("image1.png")  # Remplace par le chemin de ton image
 background_image = background_image.resize((600, 400), Image.Resampling.LANCZOS)
 background_photo = ImageTk.PhotoImage(background_image)
 
