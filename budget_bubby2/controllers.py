@@ -8,6 +8,40 @@ class Controller:
     def __init__(self):
         self.db = Database()
 
+    def get_balance(self,account_id):
+        account_infos = self.db.fetch_one("SELECT * FROM accounts WHERE id = %s", (account_id))
+        account_infos = float(account_infos[3])
+
+    def deposit(self, account_id, amount):   
+        """Dépose une somme sur le compte."""
+        amount = float(amount)
+        if amount <= 0:
+            return "Le montant doit être positif."
+
+        try:
+            sql = "UPDATE accounts SET balance = balance + %s WHERE id = %s"
+            self.db.execute_query(sql, (amount, account_id))
+        except Exception as e:
+            return f"Erreur : {e}"
+        
+    def withdraw(self, account_id, amount):
+        """Effectue un retrait."""
+        amount = float(amount)
+        balance = self.get_balance(account_id)
+
+        if balance is None:
+            return "Compte introuvable."
+        if amount <= 0:
+            return "Le montant doit être positif."
+        if balance < amount:
+            return "Fonds insuffisants."
+
+        try:
+            sql = "UPDATE accounts SET balance = balance - %s WHERE id = %s"
+            self.db.execute_query(sql, (amount, account_id))
+        except Exception as e:
+            return f"Erreur : {e}"
+
     def get_accounts(self, user_id):
         """Récupère les comptes d'un utilisateur spécifique."""
         query = "SELECT * FROM accounts WHERE id_users = %s"
@@ -20,7 +54,6 @@ class Controller:
         """Récupère les transactions d'un compte spécifique."""
         query = "SELECT * FROM transactions WHERE id_accounts = %s"
         result = self.db.fetch_all(query, (account_id,))
-        print(result) #debugging
         if not result:
             return []  # Liste vide si aucune transaction n'est trouvée
         return [Transaction(*row) for row in result]
@@ -155,30 +188,33 @@ class Controller:
         return result[0] if result else None
     
     def transfer_money(self, sender_user_id, from_account_id, to_account_iban, amount):
-    
-        # Vérification si le montant est valide
-        if amount <= 0:
-            return "Le montant doit être supérieur à zéro."
+        try:
+            # Ensure the amount is a valid float
+            if amount <= 0:
+                return "Le montant doit être supérieur à zéro."
+        except ValueError:
+            return "Le montant doit être un nombre valide."
 
         # Récupérer le compte de l'émetteur
         from_account = self.db.fetch_one("SELECT * FROM accounts WHERE id = %s AND id_users = %s", (from_account_id, sender_user_id))
         if not from_account:
             return "Compte émetteur introuvable."
 
-        from_balance = from_account[2]  # Balance du compte émetteur
-    
+        # Ensure from_balance is a float
+        from_balance = float(from_account[3])  # Balance du compte émetteur
+
         # Vérification si le solde est suffisant
         if from_balance < amount:
             return "Solde insuffisant."
 
         # Vérification si l'IBAN du destinataire existe dans la base de données
         to_account = self.db.fetch_one("SELECT * FROM accounts WHERE iban = %s", (to_account_iban,))
-    
+
         if to_account:
             # Transfert interne (vers un autre compte de la même plateforme)
             to_account_id = to_account[0]  # ID du destinataire
             new_from_balance = from_balance - amount
-            new_to_balance = to_account[2] + amount
+            new_to_balance = float(to_account[3]) + amount  # Ensure to_balance is a float
 
             try:
                 # Mettre à jour les comptes de l'émetteur et du destinataire
@@ -193,3 +229,19 @@ class Controller:
 
             except Exception as e:
                 return f"Erreur lors du transfert interne : {e}"
+
+        else:
+            # Transfert externe (vers un IBAN externe)
+            new_from_balance = from_balance - amount
+
+            try:
+                # Mettre à jour le compte de l'émetteur
+                self.db.execute_query("UPDATE accounts SET balance = %s WHERE id = %s", (new_from_balance, from_account_id))
+
+                # Enregistrer la transaction dans la table transactions (transfert externe)
+                self.add_transaction(sender_user_id, f"Transfert vers IBAN {to_account_iban}", amount, from_account_id, 'withdrawal', 'autres')
+
+                return "Transfert externe effectué avec succès."
+
+            except Exception as e:
+                return f"Erreur lors du transfert externe : {e}"

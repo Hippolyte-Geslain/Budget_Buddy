@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers import Controller
+from balancing import deposit,withdraw
 
 class Application:
     def __init__(self, master):
@@ -193,11 +194,16 @@ class Application:
             try:
                 amount = float(amount_entry.get())
                 transaction_type = transaction_type_var.get()  # Type de transaction sélectionné
+                
                 selected_account_name = account_var.get()  # Nom du compte sélectionné
             
                 account_id = next(account.id for account in accounts if account.account_name == selected_account_name)
 
                 category = category_var.get()
+                if transaction_type == 'deposit':
+                    self.controller.deposit(account_id,amount)
+                if transaction_type == 'withdrawal':
+                    self.controller.withdraw(account_id,amount)
             
                 message = self.controller.add_transaction(user.id, description, amount, account_id, transaction_type, category)
                 messagebox.showinfo("Succès", message)
@@ -231,15 +237,28 @@ class Application:
 
         def submit_transfer():
             try:
+                # Validate and convert the amount
                 amount = float(amount_entry.get())
+                if amount <= 0:
+                    raise ValueError("Le montant doit être supérieur à zéro.")
+
+                # Get the source account ID
                 from_account_name = from_account_var.get()
-                from_account_id = next(account.id for account in accounts if account.account_name == from_account_name)
+                try:
+                    from_account_id = int(next(account.id for account in accounts if account.account_name == from_account_name))
+                except StopIteration:
+                    messagebox.showerror("Erreur", "Compte source introuvable.")
+                    return
+
+                # Get the destination IBAN
                 to_account_iban = iban_entry.get() or None
+
+                # Perform the transfer
                 message = self.controller.transfer_money(user.id, from_account_id, to_account_iban, amount)
                 messagebox.showinfo("Transfert", message)
                 transfer_window.destroy()
-            except ValueError:
-                messagebox.showerror("Erreur", "Veuillez entrer un montant valide.")
+            except ValueError as ve:
+                messagebox.showerror("Erreur", f"Erreur de validation : {ve}")
             except Exception as e:
                 messagebox.showerror("Erreur", f"Erreur : {e}")
 
